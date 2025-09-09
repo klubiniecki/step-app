@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.config.js
+*.config.ts
+package-lock.json
+yarn.lock
+.git/
+.vscode/
+coverage/
+.nyc_output/
+*.log
+
+
