@@ -1,14 +1,17 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View } from 'react-native';
+import { Text, Button, Surface } from 'react-native-paper';
 import { useAuth } from '../providers/AuthProvider';
 
 export default function HomeScreen() {
 	const { user, signOut } = useAuth();
 	return (
-		<View style={{ flex: 1, padding: 24, gap: 12, justifyContent: 'center' }}>
-			<Text style={{ fontSize: 20 }}>Signed in as</Text>
-			<Text selectable style={{ fontWeight: '600' }}>{user?.email}</Text>
-			<Button title="Sign Out" onPress={signOut} />
+		<View style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 24, gap: 16, justifyContent: 'center' }}>
+			<Surface elevation={1} style={{ padding: 16, borderRadius: 12, gap: 12 }}>
+				<Text variant="titleMedium">Signed in as</Text>
+				<Text selectable style={{ fontWeight: '600' }}>{user?.email}</Text>
+				<Button mode="contained" onPress={signOut}>Sign Out</Button>
+			</Surface>
 		</View>
 	);
 }
