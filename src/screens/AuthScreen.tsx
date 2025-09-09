@@ -10,6 +10,7 @@ WebBrowser.maybeCompleteAuthSession();
 export default function AuthScreen() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [displayName, setDisplayName] = useState('');
 	const [busy, setBusy] = useState(false);
 
 	const redirectUri = useMemo(() => makeRedirectUri({ useProxy: true, scheme: 'supabaseauth' }), []);
@@ -30,7 +31,12 @@ export default function AuthScreen() {
 		const { error } = await supabase.auth.signUp({ email, password });
 		setBusy(false);
 		if (error) Alert.alert('Sign-up failed', error.message);
-		else Alert.alert('Check your email', 'Confirm your account if email confirmation is enabled.');
+		else {
+			if (displayName) {
+				await supabase.auth.updateUser({ data: { display_name: displayName } });
+			}
+			Alert.alert('Check your email', 'Confirm your account if email confirmation is enabled.');
+		}
 	};
 
 	const signInWithGoogle = async () => {
@@ -73,6 +79,11 @@ export default function AuthScreen() {
 					secureTextEntry
 					value={password}
 					onChangeText={setPassword}
+				/>
+				<TextInput
+					label="Display name (optional)"
+					value={displayName}
+					onChangeText={setDisplayName}
 				/>
 				{busy ? (
 					<ActivityIndicator />
