@@ -1,20 +1,27 @@
-import React from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
-import { ThemeProvider, useThemeMode } from './src/providers/ThemeProvider';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
-  NavigationContainer,
   DarkTheme as NavDarkTheme,
   DefaultTheme as NavLightTheme,
+  NavigationContainer,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Icon, IconButton, useTheme } from 'react-native-paper';
-import AboutScreen from './src/screens/AboutScreen';
-import FamilyScreen from './src/screens/FamilyScreen';
+import React from 'react';
+import {
+  Icon,
+  IconButton,
+  Provider as PaperProvider,
+  useTheme,
+} from 'react-native-paper';
 import { AuthProvider, useAuth } from './src/providers/AuthProvider';
+import { ThemeProvider, useThemeMode } from './src/providers/ThemeProvider';
+import AboutScreen from './src/screens/AboutScreen';
+import ActivityScreen from './src/screens/ActivityScreen';
 import AuthScreen from './src/screens/AuthScreen';
-import LandingScreen from './src/screens/LandingScreen';
+import FamilyScreen from './src/screens/FamilyScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import InsightsScreen from './src/screens/InsightsScreen';
+import LandingScreen from './src/screens/LandingScreen';
+import ProgressScreen from './src/screens/ProgressScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,13 +34,32 @@ function AuthenticatedTabs() {
       screenOptions={({ route }) => ({
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
-        tabBarIcon: ({ color, size }) => (
-          <Icon
-            source={route.name === 'Home' ? 'home' : 'information-outline'}
-            color={color}
-            size={size}
-          />
-        ),
+        tabBarIcon: ({ color, size }) => {
+          let iconName: string;
+          switch (route.name) {
+            case 'Home':
+              iconName = 'home';
+              break;
+            case 'Activity':
+              iconName = 'star';
+              break;
+            case 'Progress':
+              iconName = 'chart-line';
+              break;
+            case 'Insights':
+              iconName = 'lightbulb';
+              break;
+            case 'Family':
+              iconName = 'account-group';
+              break;
+            case 'About':
+              iconName = 'information-outline';
+              break;
+            default:
+              iconName = 'help-circle-outline';
+          }
+          return <Icon source={iconName} color={color} size={size} />;
+        },
         headerRight: () => (
           <IconButton
             accessibilityLabel='Toggle theme'
@@ -47,6 +73,21 @@ function AuthenticatedTabs() {
         name='Home'
         component={HomeScreen}
         options={{ title: 'Home' }}
+      />
+      <Tab.Screen
+        name='Activity'
+        component={ActivityScreen}
+        options={{ title: 'Today' }}
+      />
+      <Tab.Screen
+        name='Progress'
+        component={ProgressScreen}
+        options={{ title: 'Progress' }}
+      />
+      <Tab.Screen
+        name='Insights'
+        component={InsightsScreen}
+        options={{ title: 'Insights' }}
       />
       <Tab.Screen
         name='Family'

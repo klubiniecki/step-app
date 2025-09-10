@@ -35,7 +35,7 @@ export default function LandingScreen({
         >
           Connect parents and kids through small, meaningful steps.
         </Text>
-        <Button mode='contained' onPress={() => navigation.replace('Auth')}>
+        <Button mode='contained' onPress={() => navigation.navigate('Auth')}>
           Get Started
         </Button>
       </Surface>

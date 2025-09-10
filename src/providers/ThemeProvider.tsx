@@ -16,7 +16,7 @@ const GREEN = {
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
   const paperTheme = useMemo(() => {
     const base = mode === 'dark' ? MD3DarkTheme : MD3LightTheme;

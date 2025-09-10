@@ -1,29 +1,58 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Text, Button, Surface } from 'react-native-paper';
+import { ScrollView, View } from 'react-native';
+import { ActivityIndicator, Button, Text } from 'react-native-paper';
+import { DailyInsight } from '../components/home/DailyInsight';
+import { FamilyOverview } from '../components/home/FamilyOverview';
+import { NoActivityCard } from '../components/home/NoActivityCard';
+import { QuickActions } from '../components/home/QuickActions';
+import { QuickStats } from '../components/home/QuickStats';
+import { TodaysActivityCard } from '../components/home/TodaysActivityCard';
+import { WelcomeHeader } from '../components/home/WelcomeHeader';
+import { useHomeData } from '../hooks/useHomeData';
 import { useAuth } from '../providers/AuthProvider';
 
 export default function HomeScreen() {
   const { user, signOut } = useAuth();
+  const { dailyActivity, streakStats, randomInsight, kids, loading } =
+    useHomeData();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large' />
+        <Text style={{ marginTop: 16 }}>Loading your dashboard...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingHorizontal: 20,
-        paddingVertical: 24,
-        gap: 16,
-        justifyContent: 'center',
-      }}
-    >
-      <Surface elevation={1} style={{ padding: 16, borderRadius: 12, gap: 12 }}>
-        <Text variant='titleMedium'>Signed in as</Text>
-        <Text selectable style={{ fontWeight: '600' }}>
-          {user?.email}
-        </Text>
-        <Button mode='contained' onPress={signOut}>
-          Sign Out
-        </Button>
-      </Surface>
-    </View>
+    <ScrollView style={{ flex: 1, padding: 16 }}>
+      {/* Welcome Header */}
+      <WelcomeHeader displayName={user?.user_metadata?.display_name} />
+
+      {/* Quick Stats */}
+      {streakStats && <QuickStats streakStats={streakStats} />}
+
+      {/* Today's Activity Preview */}
+      {dailyActivity ? (
+        <TodaysActivityCard dailyActivity={dailyActivity} />
+      ) : (
+        <NoActivityCard />
+      )}
+
+      {/* Family Overview */}
+      <FamilyOverview kids={kids} />
+
+      {/* Daily Insight */}
+      {randomInsight && <DailyInsight insight={randomInsight} />}
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Sign Out */}
+      <Button mode='text' onPress={signOut} icon='logout' textColor='#666'>
+        Sign Out
+      </Button>
+    </ScrollView>
   );
 }
