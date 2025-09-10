@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { Card, Icon, ProgressBar, Text } from 'react-native-paper';
+import { Card, Icon, ProgressBar, Text, useTheme } from 'react-native-paper';
 
 interface WeeklyProgressCardProps {
   weekDays: Array<{
@@ -16,6 +16,7 @@ export function WeeklyProgressCard({
   weekDays,
   completionRate,
 }: WeeklyProgressCardProps) {
+  const theme = useTheme();
   return (
     <Card elevation={2} style={{ marginBottom: 16 }}>
       <Card.Content>
@@ -41,7 +42,9 @@ export function WeeklyProgressCard({
                   width: 48,
                   height: 48,
                   borderRadius: 24,
-                  backgroundColor: day.completed ? '#10b981' : '#e5e7eb',
+                  backgroundColor: day.completed
+                    ? theme.colors.primary
+                    : theme.colors.surfaceVariant,
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginBottom: 8,
@@ -49,7 +52,9 @@ export function WeeklyProgressCard({
               >
                 <Text
                   style={{
-                    color: day.completed ? 'white' : '#6b7280',
+                    color: day.completed
+                      ? theme.colors.onPrimary
+                      : theme.colors.onSurfaceVariant,
                     fontWeight: 'bold',
                     fontSize: 16,
                   }}
@@ -60,19 +65,18 @@ export function WeeklyProgressCard({
               <Text
                 variant='bodySmall'
                 style={{
-                  color: day.completed ? '#10b981' : '#6b7280',
+                  color: day.completed
+                    ? theme.colors.primary
+                    : theme.colors.onSurfaceVariant,
                   fontWeight: day.completed ? 'bold' : 'normal',
                 }}
               >
                 {day.dayName}
               </Text>
               {day.completed && (
-                <Icon
-                  source='check'
-                  size={16}
-                  color='#10b981'
-                  style={{ marginTop: 4 }}
-                />
+                <View style={{ marginTop: 4 }}>
+                  <Icon source='check' size={16} color={theme.colors.primary} />
+                </View>
               )}
             </View>
           ))}
@@ -89,7 +93,7 @@ export function WeeklyProgressCard({
           <Text variant='bodyMedium'>Weekly completion rate:</Text>
           <Text
             variant='bodyMedium'
-            style={{ color: '#10b981', fontWeight: 'bold' }}
+            style={{ color: theme.colors.primary, fontWeight: 'bold' }}
           >
             {Math.round(completionRate * 100)}%
           </Text>
@@ -97,7 +101,7 @@ export function WeeklyProgressCard({
 
         <ProgressBar
           progress={completionRate}
-          color='#10b981'
+          color={theme.colors.primary}
           style={{ marginTop: 8, height: 8, borderRadius: 4 }}
         />
       </Card.Content>

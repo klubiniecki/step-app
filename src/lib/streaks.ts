@@ -43,6 +43,10 @@ export async function getOrCreateUserStreak(): Promise<UserStreak> {
     streak = data;
   }
 
+  if (!streak) {
+    throw new Error('Failed to create user streak');
+  }
+
   return streak;
 }
 
@@ -88,9 +92,10 @@ export async function hasCompletedActivityToday(): Promise<boolean> {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // Count distinct activities completed today (not individual kid entries)
   const { data, error } = await supabase
     .from('user_activities')
-    .select('id')
+    .select('activity_id')
     .eq('user_id', user.id)
     .gte('completed_at', `${today}T00:00:00`)
     .lt('completed_at', `${today}T23:59:59`)
@@ -112,9 +117,10 @@ export async function getWeeklyActivityCompletion(): Promise<{
   const today = new Date();
   const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
+  // Get distinct activities per day (not individual kid entries)
   const { data, error } = await supabase
     .from('user_activities')
-    .select('completed_at')
+    .select('completed_at, activity_id')
     .eq('user_id', user.id)
     .gte('completed_at', weekAgo.toISOString())
     .order('completed_at', { ascending: true });
@@ -130,13 +136,25 @@ export async function getWeeklyActivityCompletion(): Promise<{
     completion[dateStr] = false;
   }
 
-  // Mark completed days as true, but only for dates within the current week
+  // Track unique activities per day
+  const activitiesPerDay: { [key: string]: Set<string> } = {};
+
+  // Group activities by date
   data?.forEach(activity => {
     const activityDate = new Date(activity.completed_at);
     const dateStr = activityDate.toISOString().split('T')[0];
 
-    // Only mark as completed if the date is within our week range
     if (completion.hasOwnProperty(dateStr)) {
+      if (!activitiesPerDay[dateStr]) {
+        activitiesPerDay[dateStr] = new Set();
+      }
+      activitiesPerDay[dateStr].add(activity.activity_id);
+    }
+  });
+
+  // Mark days as completed if they have at least one unique activity
+  Object.keys(completion).forEach(dateStr => {
+    if (activitiesPerDay[dateStr] && activitiesPerDay[dateStr].size > 0) {
       completion[dateStr] = true;
     }
   });

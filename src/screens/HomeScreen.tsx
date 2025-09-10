@@ -1,3 +1,4 @@
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { ActivityIndicator, Button, Text } from 'react-native-paper';
@@ -11,7 +12,20 @@ import { WelcomeHeader } from '../components/home/WelcomeHeader';
 import { useHomeData } from '../hooks/useHomeData';
 import { useAuth } from '../providers/AuthProvider';
 
-export default function HomeScreen() {
+type RootTabParamList = {
+  Home: undefined;
+  Activity: undefined;
+  Progress: undefined;
+  Insights: undefined;
+  Family: undefined;
+  About: undefined;
+};
+
+interface HomeScreenProps {
+  navigation: BottomTabNavigationProp<RootTabParamList, 'Home'>;
+}
+
+export default function HomeScreen({ navigation }: HomeScreenProps) {
   const { user, signOut } = useAuth();
   const { dailyActivity, streakStats, randomInsight, kids, loading } =
     useHomeData();
@@ -35,7 +49,10 @@ export default function HomeScreen() {
 
       {/* Today's Activity Preview */}
       {dailyActivity ? (
-        <TodaysActivityCard dailyActivity={dailyActivity} />
+        <TodaysActivityCard
+          dailyActivity={dailyActivity}
+          onStartActivity={() => navigation.navigate('Activity')}
+        />
       ) : (
         <NoActivityCard />
       )}

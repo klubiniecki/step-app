@@ -35,9 +35,9 @@ export interface UserActivity {
   activity_id: string;
   kid_id?: string;
   completed_at: string;
-  rating?: number;
+  parent_rating?: number;
+  child_rating?: number;
   notes?: string;
-  duration_actual?: number;
   created_at: string;
   // Joined data
   activity?: Activity;
@@ -91,4 +91,27 @@ export interface ActivityFilters {
   difficulty_level?: number;
   duration_max?: number;
   exclude_completed?: boolean;
+}
+
+export interface ChildActivityStats {
+  kid_id: string;
+  kid_name: string;
+  kid_age: number;
+  total_activities: number;
+  favorite_activities: Array<{
+    activity: Activity;
+    rating: number;
+    completed_at: string;
+  }>;
+  average_rating: number;
+}
+
+export interface ParentActivityStats {
+  total_activities: number;
+  favorite_activities: Array<{
+    activity: Activity;
+    rating: number;
+    completed_at: string;
+  }>;
+  average_rating: number;
 }

@@ -51,7 +51,9 @@ export async function getBookmarkedInsights(): Promise<Insight[]> {
 
   if (error) throw error;
 
-  return data?.map(item => item.insight).filter(Boolean) || [];
+  return (data?.map(item => item.insight as unknown as Insight) || []).filter(
+    Boolean
+  );
 }
 
 // Check if an insight is bookmarked

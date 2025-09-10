@@ -109,9 +109,10 @@ export async function getTodaysActivity(): Promise<DailyActivity | null> {
 export async function completeActivity(
   activityId: string,
   kidId: string | null,
-  rating: number,
+  parentRating: number,
   notes?: string,
-  durationActual?: number
+  durationActual?: number,
+  childRating?: number
 ): Promise<UserActivity> {
   const {
     data: { user },
@@ -124,9 +125,10 @@ export async function completeActivity(
       user_id: user.id,
       activity_id: activityId,
       kid_id: kidId,
-      rating,
+      parent_rating: parentRating,
+      child_rating: childRating,
       notes,
-      duration_actual: durationActual,
+      // Note: duration_actual field removed as it doesn't exist in the database schema
     })
     .select(
       `
@@ -212,7 +214,10 @@ export async function getActivityRecommendations(
     query = query.not('id', 'in', `(${completedIds.join(',')})`);
   }
 
-  if (preferences?.preferred_categories?.length > 0) {
+  if (
+    preferences?.preferred_categories?.length &&
+    preferences.preferred_categories.length > 0
+  ) {
     query = query.in('category', preferences.preferred_categories);
   }
 

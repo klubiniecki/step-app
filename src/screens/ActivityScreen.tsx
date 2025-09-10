@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import {
   ActivityIndicator,
   Button,
@@ -9,8 +9,8 @@ import {
   Icon,
   Surface,
   Text,
-  TextInput,
 } from 'react-native-paper';
+import { ActivityRatingModal } from '../components/rating/ActivityRatingModal';
 import { completeActivity, getTodaysActivity } from '../lib/activities';
 import { listKids, type Kid } from '../lib/kids';
 import { hasCompletedActivityToday } from '../lib/streaks';
@@ -24,9 +24,7 @@ export default function ActivityScreen() {
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [selectedKids, setSelectedKids] = useState<string[]>([]);
-  const [rating, setRating] = useState(0);
-  const [notes, setNotes] = useState('');
-  const [duration, setDuration] = useState('');
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -56,15 +54,7 @@ export default function ActivityScreen() {
     }
   };
 
-  const handleCompleteActivity = async () => {
-    if (!dailyActivity || !rating) {
-      Alert.alert(
-        'Missing Information',
-        'Please rate the activity before completing.'
-      );
-      return;
-    }
-
+  const handleStartActivity = () => {
     if (selectedKids.length === 0) {
       Alert.alert(
         'Missing Information',
@@ -72,22 +62,34 @@ export default function ActivityScreen() {
       );
       return;
     }
+    setRatingModalVisible(true);
+  };
+
+  const handleCompleteActivity = async (ratings: {
+    parentRating: number;
+    childRatings: { [kidId: string]: number };
+    notes: string;
+  }) => {
+    if (!dailyActivity) return;
 
     try {
       setCompleting(true);
-      // Complete activity for each selected child
+
+      // Complete activity for each selected child with their individual ratings
       const promises = selectedKids.map(kidId =>
         completeActivity(
           dailyActivity.activity.id,
-          kidId,
-          rating,
-          notes || undefined,
-          duration ? parseInt(duration, 10) : undefined
+          kidId || null, // Ensure kidId is string or null
+          ratings.parentRating,
+          ratings.notes || undefined,
+          undefined, // duration not collected in this flow
+          ratings.childRatings[kidId] || 0
         )
       );
 
       await Promise.all(promises);
 
+      setRatingModalVisible(false);
       Alert.alert('Great job!', 'Activity completed successfully!', [
         { text: 'OK', onPress: loadData },
       ]);
@@ -138,10 +140,6 @@ export default function ActivityScreen() {
     setSelectedKids(prev =>
       prev.includes(kidId) ? prev.filter(id => id !== kidId) : [...prev, kidId]
     );
-  };
-
-  const handleRatingChange = (newRating: number) => {
-    setRating(newRating);
   };
 
   if (loading) {
@@ -348,64 +346,14 @@ export default function ActivityScreen() {
             </View>
           )}
 
-          {/* Rating */}
-          <View style={{ marginBottom: 16 }}>
-            <Text variant='bodyMedium' style={{ marginBottom: 8 }}>
-              How much did you enjoy this activity? *
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[1, 2, 3, 4, 5].map(star => (
-                <TouchableOpacity
-                  key={star}
-                  onPress={() => handleRatingChange(star)}
-                  style={{ padding: 4 }}
-                >
-                  <Icon
-                    source={star <= rating ? 'star' : 'star-outline'}
-                    size={32}
-                    color={star <= rating ? '#ffc107' : '#ccc'}
-                  />
-                </TouchableOpacity>
-              ))}
-            </View>
-            {rating > 0 && (
-              <Text variant='bodySmall' style={{ marginTop: 4, color: '#666' }}>
-                {rating === 1 && 'Not great'}
-                {rating === 2 && 'Okay'}
-                {rating === 3 && 'Good'}
-                {rating === 4 && 'Really good'}
-                {rating === 5 && 'Amazing!'}
-              </Text>
-            )}
-          </View>
-
-          {/* Duration */}
-          <TextInput
-            label='Actual duration (minutes)'
-            value={duration}
-            onChangeText={setDuration}
-            keyboardType='numeric'
-            style={{ marginBottom: 16 }}
-          />
-
-          {/* Notes */}
-          <TextInput
-            label='Reflection notes (optional)'
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={3}
-            style={{ marginBottom: 16 }}
-          />
-
           <Button
             mode='contained'
-            onPress={handleCompleteActivity}
+            onPress={handleStartActivity}
             loading={completing}
-            disabled={completing || !rating || selectedKids.length === 0}
+            disabled={completing || selectedKids.length === 0}
             icon='check'
           >
-            Complete Activity
+            Start Activity
           </Button>
 
           {selectedKids.length === 0 && (
@@ -437,6 +385,18 @@ export default function ActivityScreen() {
             Great job completing today&apos;s activity. Keep up the streak!
           </Text>
         </Surface>
+      )}
+
+      {/* Rating Modal */}
+      {dailyActivity && (
+        <ActivityRatingModal
+          visible={ratingModalVisible}
+          onDismiss={() => setRatingModalVisible(false)}
+          activity={dailyActivity.activity}
+          selectedKids={kids.filter(kid => selectedKids.includes(kid.id))}
+          onComplete={handleCompleteActivity}
+          loading={completing}
+        />
       )}
     </ScrollView>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Card, Icon, Text } from 'react-native-paper';
+import { Card, Icon, Text, useTheme } from 'react-native-paper';
 
 interface StreakStats {
   currentStreak: number;
@@ -14,6 +14,7 @@ interface StreakStatsCardProps {
 }
 
 export function StreakStatsCard({ streakStats }: StreakStatsCardProps) {
+  const theme = useTheme();
   const getStreakMessage = () => {
     if (streakStats.currentStreak === 0) {
       return "Let's start your first streak! Complete an activity today.";
@@ -43,10 +44,10 @@ export function StreakStatsCard({ streakStats }: StreakStatsCardProps) {
           }}
         >
           <View style={{ alignItems: 'center' }}>
-            <Icon source='fire' size={32} color='#ff6b35' />
+            <Icon source='fire' size={32} color={theme.colors.primary} />
             <Text
               variant='headlineMedium'
-              style={{ color: '#ff6b35', marginTop: 4 }}
+              style={{ color: theme.colors.primary, marginTop: 4 }}
             >
               {streakStats.currentStreak}
             </Text>
@@ -54,10 +55,10 @@ export function StreakStatsCard({ streakStats }: StreakStatsCardProps) {
           </View>
 
           <View style={{ alignItems: 'center' }}>
-            <Icon source='trophy' size={32} color='#ffd700' />
+            <Icon source='trophy' size={32} color={theme.colors.secondary} />
             <Text
               variant='headlineMedium'
-              style={{ color: '#ffd700', marginTop: 4 }}
+              style={{ color: theme.colors.secondary, marginTop: 4 }}
             >
               {streakStats.longestStreak}
             </Text>
@@ -65,10 +66,10 @@ export function StreakStatsCard({ streakStats }: StreakStatsCardProps) {
           </View>
 
           <View style={{ alignItems: 'center' }}>
-            <Icon source='star' size={32} color='#2196f3' />
+            <Icon source='star' size={32} color={theme.colors.tertiary} />
             <Text
               variant='headlineMedium'
-              style={{ color: '#2196f3', marginTop: 4 }}
+              style={{ color: theme.colors.tertiary, marginTop: 4 }}
             >
               {streakStats.totalActivities}
             </Text>
@@ -78,7 +79,7 @@ export function StreakStatsCard({ streakStats }: StreakStatsCardProps) {
 
         <Text
           variant='bodyMedium'
-          style={{ textAlign: 'center', color: '#666' }}
+          style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}
         >
           {getStreakMessage()}
         </Text>

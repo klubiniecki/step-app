@@ -5,9 +5,13 @@ import type { DailyActivity } from '../../lib/types';
 
 interface TodaysActivityCardProps {
   dailyActivity: DailyActivity;
+  onStartActivity: () => void;
 }
 
-export function TodaysActivityCard({ dailyActivity }: TodaysActivityCardProps) {
+export function TodaysActivityCard({
+  dailyActivity,
+  onStartActivity,
+}: TodaysActivityCardProps) {
   return (
     <Card elevation={2} style={{ marginBottom: 16 }}>
       <Card.Content>
@@ -55,9 +59,8 @@ export function TodaysActivityCard({ dailyActivity }: TodaysActivityCardProps) {
         <Button
           mode={dailyActivity.is_completed ? 'outlined' : 'contained'}
           icon={dailyActivity.is_completed ? 'check' : 'play'}
-          onPress={() => {
-            // Navigation would be handled by the tab navigator
-          }}
+          onPress={onStartActivity}
+          disabled={dailyActivity.is_completed}
         >
           {dailyActivity.is_completed ? 'Completed!' : 'Start Activity'}
         </Button>
